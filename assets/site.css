@@ -342,3 +342,6 @@ footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;margin
 .stat:hover .ar,.stat:focus-visible .ar{opacity:1;background:var(--brass);box-shadow:none;stroke:var(--green);transform:rotate(45deg)}
 .quote{max-width:780px}
 .quote p{font-size:clamp(28px,3.7vw,50px)}
+
+.about.solo{display:block}
+.about.solo .txt{max-width:62ch}
