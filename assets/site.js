@@ -98,6 +98,13 @@ function play(){clearInterval(timer);let i=at>=D.stack.length-1?-1:at;timer=setI
 nB.forEach((b,i)=>b.onclick=()=>{clearInterval(timer);setS(i,true);});
 reset();addEventListener('resize',()=>at<0?reset():setS(at,false));
 
+/* photo lightbox */
+const lb=$('#lb'),lbi=$('img',lb);
+$('#phBtn').onclick=()=>{lbi.src='assets/portrait.webp';lb.classList.add('open');document.body.style.overflow='hidden';$('.x',lb).focus();};
+const lbClose=()=>{lb.classList.remove('open');document.body.style.overflow='';$('#phBtn').focus();};
+lb.onclick=e=>{if(e.target!==lbi)lbClose();};
+addEventListener('keydown',e=>{if(e.key==='Escape'&&lb.classList.contains('open'))lbClose();});
+
 /* contact */
 const toast=$('#toast');
 $('#copyEmail').onclick=async()=>{try{await navigator.clipboard.writeText(D.email);}catch(_){location.href='mailto:'+D.email;return;}toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),1800);};
