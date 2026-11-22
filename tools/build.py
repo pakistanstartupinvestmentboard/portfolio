@@ -17,14 +17,7 @@ WA_PATH = (ROOT / "tools/wa_path.txt").read_text().strip()
 LI_PATH = "M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"
 icon = lambda p: f'<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#fff" d="{p}"/></svg>'
 
-# hero line art: lines that start spread out and converge on one point
-paths = []
-for k in range(15):
-    y0 = 10 + k * 40
-    gold = k == 7
-    paths.append(f'<path d="M0 {y0} C 260 {y0}, 300 300, 560 300" stroke="{"#c9a24a" if gold else "#2b6f59"}" stroke-width="{1.6 if gold else 1}" fill="none"/>')
-lines = ('<svg class="lines" viewBox="0 0 600 600" preserveAspectRatio="xMaxYMid slice" aria-hidden="true">' + "".join(paths)
-         + '<circle cx="560" cy="300" r="7" fill="#c9a24a"/></svg>')
+lines = '<svg class="lines" id="lines" aria-hidden="true"></svg>'
 
 MON = "Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec".split()
 def fmt(s):

@@ -20,23 +20,38 @@ links.forEach(l=>{const s=document.getElementById(l.hash.slice(1));if(s)spy.obse
 
 /* experience rail + modal */
 const card=r=>`<button class="job" data-role="${r.id}"><span class="org">${r.org}</span><span class="r">${r.role}</span><span class="d">${range(r)}, ${dur(r)}</span><p>${r.line}</p><span class="open">Read more</span></button>`;
-const tr=$('#rail .track'),html=D.roles.map(card).join('');tr.innerHTML=html+html;
+const rail=$('#rail'),tr=$('#rail .track'),html=D.roles.map(card).join('');tr.innerHTML=html+html;
+/* rail: auto-scroll, pause on hover, drag to browse */
+let x=0,half=0,drag=null,hover=false,moved=0;const reduceM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const measure=()=>{half=tr.scrollWidth/2;};measure();addEventListener('resize',measure);
+const wrapX=v=>{if(!half)return v;while(v<=-half)v+=half;while(v>0)v-=half;return v;};
+let last=performance.now();
+(function tick(t){const dt=Math.min(64,t-last);last=t;if(!drag&&!hover&&!rail.classList.contains('paused')&&!reduceM)x=wrapX(x-dt*0.045);tr.style.transform=`translate3d(${x}px,0,0)`;requestAnimationFrame(tick);})(last);
+rail.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse')hover=true;});
+rail.addEventListener('pointerleave',()=>{hover=false;});
+rail.addEventListener('pointerdown',e=>{drag={sx:e.clientX,x0:x,id:e.pointerId};moved=0;});
+addEventListener('pointermove',e=>{if(!drag)return;const dx=e.clientX-drag.sx;moved=Math.max(moved,Math.abs(dx));if(moved>6){rail.classList.add('dragging');x=wrapX(drag.x0+dx);}});
+addEventListener('pointerup',()=>{if(!drag)return;drag=null;setTimeout(()=>rail.classList.remove('dragging'),0);});
 $$('.job',tr).slice(D.roles.length).forEach(b=>b.setAttribute('tabindex','-1'));
 const modal=$('#modal'),mb=$('#mbody');let cur=0,lastFocus;
 function openRole(i){cur=(i+D.roles.length)%D.roles.length;const r=D.roles[cur];
   mb.innerHTML=`<h3>${r.org}</h3><div class="r">${r.role}</div><div class="d">${r.where}. ${range(r)}, ${dur(r)}.</div>
   <ul>${r.points.map(p=>`<li>${p}</li>`).join('')}</ul><div class="tags">${r.tools.map(t=>`<span>${t}</span>`).join('')}</div>
   <div class="pn"><button data-s="-1">Previous role</button><button data-s="1">Next role</button></div>`;
-  if(!modal.classList.contains('open')){lastFocus=document.activeElement;modal.classList.add('open');$('#rail').classList.add('paused');document.body.style.overflow='hidden';}
+  if(!modal.classList.contains('open')){lastFocus=document.activeElement;modal.classList.add('open');rail.classList.add('paused');document.body.style.overflow='hidden';}
   $('.x',modal).focus();}
-function close(){modal.classList.remove('open');$('#rail').classList.remove('paused');document.body.style.overflow='';lastFocus&&lastFocus.focus();}
-tr.addEventListener('click',e=>{const b=e.target.closest('.job');if(b)openRole(D.roles.findIndex(r=>r.id===b.dataset.role));});
+function close(){modal.classList.remove('open');rail.classList.remove('paused');document.body.style.overflow='';lastFocus&&lastFocus.focus();}
+tr.addEventListener('click',e=>{if(moved>6)return;const b=e.target.closest('.job');if(b)openRole(D.roles.findIndex(r=>r.id===b.dataset.role));});
+$$('.stat').forEach(s=>s.addEventListener('click',()=>openRole(D.roles.findIndex(r=>r.id===s.dataset.role))));
 modal.addEventListener('click',e=>{if(e.target===modal||e.target.closest('.x'))return close();const s=e.target.closest('[data-s]');if(s)openRole(cur+ +s.dataset.s);});
 addEventListener('keydown',e=>{if(!modal.classList.contains('open'))return;if(e.key==='Escape')close();if(e.key==='ArrowRight')openRole(cur+1);if(e.key==='ArrowLeft')openRole(cur-1);});
 
 /* how I work: tabs */
 const tabs=$$('#modes button');
-tabs.forEach(t=>t.onclick=()=>{press(tabs,tabs.indexOf(t),'aria-selected');$$('.pane').forEach(p=>p.classList.toggle('on',p.id==='p-'+t.dataset.p));});
+const ind=$('#modes .ind');
+const moveInd=()=>{const t=tabs.find(b=>b.getAttribute('aria-selected')==='true');Object.assign(ind.style,{left:t.offsetLeft+'px',top:t.offsetTop+'px',width:t.offsetWidth+'px',height:t.offsetHeight+'px'});};
+tabs.forEach(t=>t.onclick=()=>{press(tabs,tabs.indexOf(t),'aria-selected');moveInd();$$('.pane').forEach(p=>p.classList.toggle('on',p.id==='p-'+t.dataset.p));});
+moveInd();addEventListener('resize',moveInd);document.fonts&&document.fonts.ready.then(moveInd);
 
 /* outbound: temperature */
 const tcols=['#dbe5de','#a9c2b4','#e6cf94','#c9a24a'],temp=$('#temp'),tR=$('#tempR'),tBox=$('#tempBox');
@@ -97,6 +112,26 @@ function reset(){clearInterval(timer);at=-1;nB.forEach(b=>{b.setAttribute('aria-
 function play(){clearInterval(timer);let i=at>=D.stack.length-1?-1:at;timer=setInterval(()=>{i++;setS(i,true);if(i>=D.stack.length-1)clearInterval(timer);},1300);if(i===-1){i=0;setS(0,true);}}
 nB.forEach((b,i)=>b.onclick=()=>{clearInterval(timer);setS(i,true);});
 reset();addEventListener('resize',()=>at<0?reset():setS(at,false));
+
+/* scroll progress */
+const prog=$('#prog');const onP=()=>{const h=document.documentElement.scrollHeight-innerHeight;prog.style.transform=`scaleX(${h>0?scrollY/h:0})`;};addEventListener('scroll',onP,{passive:true});onP();
+
+/* hero: lines converge on the pointer */
+const band=$('.band'),ls=$('#lines'),NS='http://www.w3.org/2000/svg',N=17;let W=0,H=0,tx=0,ty=0,cx=0,cy=0,home=[0,0],paths=[];
+function size(){const r=band.getBoundingClientRect();W=r.width;H=r.height;ls.setAttribute('viewBox',`0 0 ${W} ${H}`);home=[W-Math.max(40,W*.05),H*.46];if(!paths.length){
+  for(let k=0;k<N;k++){const p=document.createElementNS(NS,'path');const mid=k===(N>>1);p.setAttribute('stroke',mid?'#c9a24a':'#2b6f59');p.setAttribute('stroke-width',mid?'1.6':'1');ls.appendChild(p);paths.push(p);}
+  const d=document.createElementNS(NS,'circle');d.setAttribute('r','6');d.setAttribute('fill','#c9a24a');ls.appendChild(d);paths.dot=d;tx=cx=home[0];ty=cy=home[1];}
+  else{tx=home[0];ty=home[1];}}
+function draw(){const x0=W*(W<700?.3:.6);paths.forEach((p,k)=>{const y0=(k+.5)*H/N;p.setAttribute('d',`M${x0} ${y0} C ${x0+(cx-x0)*.45} ${y0}, ${x0+(cx-x0)*.55} ${cy}, ${cx} ${cy}`);});paths.dot.setAttribute('cx',cx);paths.dot.setAttribute('cy',cy);}
+size();draw();addEventListener('resize',()=>{size();draw();});
+if(!reduceM){band.addEventListener('pointermove',e=>{const r=band.getBoundingClientRect();const px=e.clientX-r.left,py=e.clientY-r.top;if(px>W*.6){tx=px;ty=py;}else{tx=home[0];ty=home[1];}});
+  band.addEventListener('pointerleave',()=>{tx=home[0];ty=home[1];});
+  (function ease(){cx+=(tx-cx)*.08;cy+=(ty-cy)*.08;draw();requestAnimationFrame(ease);})();}
+
+/* stats count up once */
+const cio=new IntersectionObserver(es=>es.forEach(e=>{if(!e.isIntersecting)return;cio.unobserve(e.target);const el=e.target,n=+el.dataset.n,pre=el.dataset.pre||'',suf=el.dataset.suf||'';if(reduceM)return;const t0=performance.now();
+  (function f(t){const p=Math.min(1,(t-t0)/1100),v=Math.round(n*(1-Math.pow(1-p,3)));el.textContent=pre+v+suf;if(p<1)requestAnimationFrame(f);})(t0);}),{threshold:.6});
+$$('[data-n]').forEach(el=>cio.observe(el));
 
 /* photo lightbox */
 const lb=$('#lb'),lbi=$('img',lb);
