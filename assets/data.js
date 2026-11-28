@@ -54,40 +54,56 @@ window.HR = {
       tools:["Meta Ads","Content","AI tools"] }
   ],
 
-  // How I work graphics (illustrative example lead: Dana Miller, Lakeview Mortgage)
+  // How I work graphics. Example prospect (illustrative): Dana Miller, Lakeview Mortgage
   out: {
     to:"Dana Miller", title:"Operations Director, Lakeview Mortgage",
+    generic:["Hi Dana, loved your recent post!"," We help mortgage companies grow with AI-powered solutions. Open to a quick call this week?"],
     parts:[
-      { k:"Observed", src:"Careers page: third processor role posted since spring", t:"Dana, I noticed Lakeview is hiring two more loan processors, the third posting since spring." },
+      { k:"Observed", src:"Careers page: third processor role posted since spring", t:"Dana, Lakeview is hiring two more loan processors, the third posting since spring." },
       { k:"Evidence", src:"Her LinkedIn post on closings slipping past 30 days", t:"Your post on closings slipping past 30 days points the same way." },
       { k:"Pain", src:"What the problem costs her, in her terms", t:"Every extra day on a file is a day a borrower can walk to a faster lender." },
       { k:"Ask", src:"Small, specific, easy to say yes to", t:"Worth 15 minutes to see where your document checks stall?" }
     ]
   },
-  feed: [
-    { ic:"c", who:"You commented on Dana's post", t:"\u201cThe 30-day slip usually starts at document checks, not underwriting. Time each handoff for a week and it shows.\u201d" },
-    { ic:"l", who:"Engagement", t:"Dana and 2 others liked your comment" },
-    { ic:"v", who:"Profile", t:"Dana Miller viewed your profile" },
-    { ic:"m", who:"New message from Dana", t:"\u201cYour comment on document checks was spot on. Open to a quick call?\u201d", tag:"She reached out first" }
+  inbound: [
+    { wk:"Week 1", side:"you", who:"You comment on her post", t:"“Most 30-day slips start at document checks, not underwriting. Worth timing each handoff for a week.”", fam:18 },
+    { wk:"Week 1", side:"them", who:"She replies to your comment", t:"“We’ve never timed handoffs. Which one usually stalls?”", fam:36 },
+    { wk:"Week 2", side:"sys", who:"She accepts your connection request", fam:52 },
+    { wk:"Week 3", side:"sys", who:"She reads your post on document checks and views your profile", fam:72 },
+    { wk:"Week 4", side:"them", who:"She messages first", t:"“Saw your post on document checks. Our closings keep slipping past 30 days and I think that’s where. How would you start measuring it?”", fam:100, tag:"A specific question, not a pitch" }
   ],
-  rail: ["Find the right people","Add value in public","They notice","They reach out"],
-  matrix: { rows:["Students","Parents","Professionals"], cols:["Benefit","Purpose","Pain"], win:[[0,1],[1,2],[2,0]] },
-  score: {
-    profile:[["Industry: mortgage",14],["Size: 80 people",12],["Title: Ops Director",12]],
-    a:{ name:"Company A", pain:[["Hiring 2 more processors",16],["Posted about slow closings",16],["Paper forms on their site",12]], verdict:"Reach out now" },
-    b:{ name:"Company B", pain:[["No relevant hiring",0],["No posts about delays",0],["Self-serve online portal",0]], verdict:"Nurture with content" }
+  ads: {
+    offer:"Free 20-minute process audit",
+    cards:[
+      { ang:"Benefit", fmt:"Video",  hook:"Close files in days, not weeks.", r:.46 },
+      { ang:"Purpose", fmt:"Video",  hook:"Built for teams that hate busywork.", r:.58 },
+      { ang:"Pain",    fmt:"Video",  hook:"Still chasing documents by email?", r:1 },
+      { ang:"Benefit", fmt:"Static", hook:"Get two weeks back every quarter.", r:.34 },
+      { ang:"Purpose", fmt:"Static", hook:"Your team should sell, not sort paperwork.", r:.52 },
+      { ang:"Pain",    fmt:"Static", hook:"Every slow file is a lost borrower.", r:.71 }
+    ]
+  },
+  scoring: {
+    co:"Lakeview Mortgage", meta:"Mortgage lender · 80 people · Ops Director", base:38,
+    srcs:[
+      { l:"Careers page", pre:"Loan Processor · ", hot:"2 openings", post:" · posted 3 days ago", w:16, sig:"Hiring to keep up with volume" },
+      { l:"LinkedIn post", pre:"“Closings keep ", hot:"slipping past 30 days", post:". Proud of the team for pushing through.”", w:16, sig:"Says the problem out loud" },
+      { l:"Website", pre:"Application form: download the PDF, ", hot:"print, sign and email it back", post:".", w:12, sig:"Manual process at the front door" }
+    ]
   },
 
-  stack: [
-    { name:"Find", tools:["Apollo","Sales Navigator","Scraping"], does:"Build lists of the right companies and people.",
-      add:[["Name","Dana Miller"],["Title","Operations Director"],["Company","Lakeview Mortgage"]] },
-    { name:"Enrich", tools:["Apollo"], does:"Fill in contact details and the signals that matter.",
-      add:[["Email","Verified"],["Team size","85"],["Signal","Hiring 2 loan officers"]] },
-    { name:"Organize", tools:["Salesforce","GoHighLevel"], does:"Keep every lead, stage and follow-up in one place.",
-      add:[["Stage","New lead"],["Score","80 of 100"]] },
-    { name:"Automate", tools:["n8n"], does:"Move data between tools and trigger follow-ups without manual work.",
-      add:[["Sequence","Started automatically"],["CRM","Updated on every reply"]] },
-    { name:"Reach", tools:["LinkedIn","Cold email","Meta Ads"], does:"Start conversations where buyers already are.",
-      add:[["Day 1","Comment on her post"],["Day 4","Connection and DM"],["Day 8","Email follow-up"],["Result","Replies and books a call"]] }
-  ]
+  // Toolkit: three engines feeding one hub
+  engines: [
+    { name:"Outbound", line:"Reach the right people first", ic:"send",
+      in:"A list of buyers who fit, with the signals behind each one", run:"Researched messages on LinkedIn and email, timed and tracked automatically", out:"Replies and booked calls",
+      tools:["Sales Navigator","Apollo","LinkedIn","Cold email"] },
+    { name:"Paid", line:"Test fast, spend on what works", ic:"play",
+      in:"One offer and a batch of AI-made variants", run:"Angles and formats tested on Meta; the budget moves to the winners every week", out:"Leads through an instant form or a WhatsApp chat",
+      tools:["Meta Ads","AI creative tools","Instant forms","WhatsApp"] },
+    { name:"Get found", line:"Be the answer they search for", ic:"globe",
+      in:"The questions buyers already ask", run:"Pages that rank on Google, plus structured data and answer-style content that AI assistants can read and cite", out:"Buyers who arrive already looking",
+      tools:["SEO","GEO","Structured data","llms.txt"], proof:"This site runs it too: structured data and an llms.txt file tell search engines and AI assistants exactly who it’s about." }
+  ],
+  hub: { name:"CRM + automation", steps:["Logged","Scored","Routed","Followed up"], tools:["Salesforce","GoHighLevel","n8n"],
+    line:"Every lead lands in one place, gets scored, and the follow-ups run on their own." }
 };
