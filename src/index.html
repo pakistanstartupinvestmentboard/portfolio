@@ -45,21 +45,28 @@
   <div class="band">
     {{LINES}}
     <div class="wrap">
+      <div class="camp load" aria-hidden="true"><span>Campaign 2026</span><span>Product: Huzaif ur Rehman</span><span>Objective: the right conversation</span></div>
       <blockquote class="quote load"><span class="mk" aria-hidden="true">&ldquo;</span><p>It took a long time before we discovered that creativity was the most practical business tool of all.</p><cite>Bill Bernbach</cite></blockquote>
     </div>
   </div>
   <div class="wrap">
     <div class="who">
-      <button class="ph load l2" id="phBtn" aria-label="View full photo"><img src="assets/photo.webp" width="200" height="200" alt="Huzaif ur Rehman" fetchpriority="high"></button>
+      <div class="ph load l2"><img src="assets/photo.webp" width="200" height="200" alt="Huzaif ur Rehman" fetchpriority="high"></div>
       <div class="id load l3">
         <h1 class="wide">Huzaif ur Rehman</h1>
         <div class="role">Marketing, go-to-market and AI automation</div>
         <div class="loc">Lahore, Pakistan. Studying Computer Science at LUMS.</div>
       </div>
-      <div class="act load l4">
+      <div class="act load l4" id="heroAct">
         <a class="btn b-green" href="#contact">Email me</a>
         <a class="btn b-line" href="assets/Huzaif_ur_Rehman_Resume.pdf" target="_blank" rel="noopener">Download resume</a>
       </div>
+    </div>
+    <div class="seg load l4" role="group" aria-label="Who is visiting">
+      <span class="seg-q">Who's visiting?</span>
+      <button data-seg="hire" aria-pressed="false">I'm hiring</button>
+      <button data-seg="growth" aria-pressed="false">I need growth</button>
+      <span class="seg-note" id="segNote" aria-live="polite"></span>
     </div>
     <div class="stats load l4">
       <button class="stat" data-role="powerhouse"><b data-n="30" data-pre="~" data-suf="%">~30%</b><span>better lead quality and conversion efficiency</span><small>Powerhouse</small><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg></button>
@@ -72,7 +79,7 @@
 
 <section class="sec" id="about">
   <div class="wrap">
-    <div class="sh"><h2 class="wide">About</h2></div>
+    <div class="sh"><h2 class="wide"><span class="kick" aria-hidden="true">01 · The brief</span>About</h2></div>
   </div>
   <div class="wrap about solo">
     <div class="txt">
@@ -84,71 +91,60 @@
 </section>
 
 <section class="sec" id="experience" style="background:var(--mint2)">
-  <div class="wrap"><div class="sh"><h2 class="wide">Experience</h2></div></div>
+  <div class="wrap"><div class="sh"><h2 class="wide"><span class="kick" aria-hidden="true">02 · Past campaigns</span>Experience</h2></div></div>
   <div class="rail" id="rail"><div class="track"><!--gen:roles--><!--/gen:roles--></div></div>
 </section>
 
 <section class="sec how" id="how">
-  <div class="wrap">
-    <div class="sh"><h2 class="wide">How I work</h2></div>
-    <div class="modes" role="tablist" id="modes"><span class="ind" aria-hidden="true"></span>
-      <button role="tab" aria-selected="true" data-p="out">Outbound</button>
-      <button role="tab" aria-selected="false" data-p="in">Inbound</button>
-      <button role="tab" aria-selected="false" data-p="ads">Meta ads</button>
-      <button role="tab" aria-selected="false" data-p="score">Lead scoring</button>
-    </div>
-    <div class="stage">
-      <div class="pane on" id="p-out" role="tabpanel">
-        <h3>Warm before outreach</h3>
-        <p class="intro">Engage first, watch for signals, and message only once the prospect is warm. Then a short sequence takes over.</p>
-        <div class="cols">
-          <div>
-            <div class="lbl">How warm is the prospect?</div>
-            <div class="temp" id="temp"></div>
-            <input type="range" min="0" max="3" step="1" value="0" id="tempR" aria-label="Prospect temperature">
-            <div class="scale"><span>Most outreach starts here</span><b>I message here</b></div>
-            <div class="box" id="tempBox" style="margin-top:18px"></div>
-          </div>
-          <div>
-            <div class="lbl">Then a four-touch sequence</div>
-            <div class="seq" id="seq"></div>
-            <div class="split"><div><b>Automated</b>Scheduling, timing and tracking</div><div><b>Written by me</b>The angle, the opener and every reply</div></div>
-          </div>
+  <div class="wrap"><div class="sh"><h2 class="wide"><span class="kick" aria-hidden="true">03 · The method</span>How I work</h2><p>Four channels. For each one: what most people do, and what I do instead.</p></div></div>
+  <div class="pin" id="pin">
+    <div class="pin-in">
+      <div class="wrap">
+        <div class="steps" id="steps">
+          <button data-i="0">Outbound</button><button data-i="1">Inbound</button><button data-i="2">Meta ads</button><button data-i="3">Lead scoring</button>
+          <span class="sbar" aria-hidden="true"><i id="sbar"></i></span>
         </div>
-      </div>
-      <div class="pane" id="p-in" role="tabpanel">
-        <h3>Content that does a job</h3>
-        <p class="intro">Every post names a problem, proves expertise or shows a result, and moves a reader one step closer to a conversation.</p>
-        <div class="cols">
-          <div>
-            <div class="lbl">The weekly content mix</div>
-            <div class="mix"><div class="donut" id="donut"></div><div class="legend" id="legend"></div></div>
-            <div class="box" id="mixBox" style="margin-top:18px"></div>
-          </div>
-          <div>
-            <div class="lbl">Where each post moves people</div>
-            <div class="funnel" id="funnel"></div>
-            <div class="box" id="funBox" style="margin-top:18px"></div>
-          </div>
+        <div class="panels">
+      <article class="mp" id="m-out" data-i="0">
+        <div class="mtxt">
+          <div class="mnum">01 / 04 &middot; Outbound</div>
+          <p class="most"><span>What most people do</span><s>Personalize the first line, template the rest, then wait for a reply.</s></p>
+          <h3>Personalization isn&rsquo;t a first line.</h3>
+          <p class="mbody">I find one real problem on their website or socials and build the whole message around it: what I saw, the pain it&rsquo;s causing them, and one small ask. Every sentence is about them.</p>
+          <p class="mproof"><b>10+</b><span>qualified meetings a month, booked for Elevation AI Solutions</span></p>
         </div>
-      </div>
-      <div class="pane" id="p-ads" role="tabpanel">
-        <h3>A four-stage ads funnel</h3>
-        <p class="intro">Each stage gets its own audience, creative and number to watch. The last stage feeds what works back into the first.</p>
-        <div class="ads" id="ads"></div>
-        <div class="adgrid" id="adgrid"></div>
-        <p class="loopnote">AI tools write and vary the creative; the numbers decide which version gets the budget.</p>
-      </div>
-      <div class="pane" id="p-score" role="tabpanel">
-        <h3>Score every lead before reaching out</h3>
-        <p class="intro">Switch the signals on or off for a lead. The score decides what happens next, and an n8n workflow does the routing.</p>
-        <div class="cols">
-          <div class="sig" id="sig"></div>
-          <div class="meter">
-            <svg class="gauge" viewBox="0 0 260 140" aria-hidden="true"><path d="M20 130 A110 110 0 0 1 240 130" stroke="#1d6650"/><path id="gfg" class="fg" d="M20 130 A110 110 0 0 1 240 130" stroke="#c9a24a"/></svg>
-            <div class="num" id="score">0</div><div class="of">out of 100</div>
-            <div class="route" id="route"></div>
-          </div>
+        <div class="mfig" id="g-out"></div>
+      </article>
+      <article class="mp" id="m-in" data-i="1">
+        <div class="mtxt">
+          <div class="mnum">02 / 04 &middot; Inbound</div>
+          <p class="most"><span>What most people do</span><s>Post content, then wait for the right people to find it.</s></p>
+          <h3>Inbound isn&rsquo;t waiting.</h3>
+          <p class="mbody">I source the exact people I want to hear from, then show up in their comments with something genuinely useful. They see the expertise before I ever message, so they reach out first.</p>
+          <p class="mproof"><b>3</b><span>posts a week plus daily comments in the niche, run for Elevation AI Solutions</span></p>
+        </div>
+        <div class="mfig" id="g-in"></div>
+      </article>
+      <article class="mp" id="m-ads" data-i="2">
+        <div class="mtxt">
+          <div class="mnum">03 / 04 &middot; Meta ads</div>
+          <p class="most"><span>What most people do</span><s>Launch one ad to one audience, then guess why it did or didn&rsquo;t work.</s></p>
+          <h3>AI makes the variants. Data picks the winner.</h3>
+          <p class="mbody">For every audience I test different angles: the benefit, the purpose, the pain. AI produces the variants fast, and the budget follows whatever converts, not whatever I like best.</p>
+          <p class="mproof"><b>3&ndash;5</b><span>new AI variants tested every week on MAPED_PK&rsquo;s campaigns</span></p>
+        </div>
+        <div class="mfig" id="g-ads"></div>
+      </article>
+      <article class="mp" id="m-score" data-i="3">
+        <div class="mtxt">
+          <div class="mnum">04 / 04 &middot; Lead scoring</div>
+          <p class="most"><span>What most people do</span><s>Score leads on industry, company size and job title.</s></p>
+          <h3>Score the pain, not the profile.</h3>
+          <p class="mbody">Two companies can look identical on paper. I score what their socials, website, hiring and workflows reveal, so outreach goes to the one feeling the problem right now.</p>
+          <p class="mproof"><b>~30%</b><span>better lead quality and conversion at Powerhouse</span></p>
+        </div>
+        <div class="mfig" id="g-score"></div>
+      </article>
         </div>
       </div>
     </div>
@@ -157,7 +153,7 @@
 
 <section class="sec" id="toolkit">
   <div class="wrap">
-    <div class="sh"><h2 class="wide">Toolkit</h2><p>The stack I use, shown as one example lead moving through it. Press play, or tap any stage.</p></div>
+    <div class="sh"><h2 class="wide"><span class="kick" aria-hidden="true">04 · The stack</span>Toolkit</h2><p>One example lead moving through my stack. It plays when you arrive; tap any stage to jump.</p></div>
     <div class="stack">
       <div class="line"><i id="sline"></i></div><div class="dot" id="sdot"></div>
       <div class="nodes" id="nodes"></div>
@@ -171,7 +167,7 @@
 
 <section class="sec" id="achievements" style="padding-top:20px">
   <div class="wrap">
-    <div class="sh"><h2 class="wide">Achievements</h2><p>Outside of client work.</p></div>
+    <div class="sh"><h2 class="wide"><span class="kick" aria-hidden="true">05 · Off the clock</span>Achievements</h2><p>Outside of client work.</p></div>
     <div class="ach">
       <div class="wyf">
         <svg viewBox="0 0 200 200" aria-hidden="true"><g fill="none" stroke="#c9a24a" stroke-opacity=".55"><circle cx="100" cy="100" r="80"/><ellipse cx="100" cy="100" rx="34" ry="80"/><ellipse cx="100" cy="100" rx="64" ry="80"/><path d="M20 100h160M30 60h140M30 140h140"/></g><circle cx="130" cy="76" r="5" fill="#c9a24a"/></svg>
@@ -193,19 +189,23 @@
 
 <section class="contact" id="contact">
   <div class="wrap">
-    <div class="sh"><h2 class="wide">Let's talk</h2><p>Hiring for marketing, growth or go-to-market? I reply within a day, and WhatsApp is fastest.</p></div>
+    <div class="sh"><h2 class="wide"><span class="kick" aria-hidden="true">06 · Call to action</span>Let's talk</h2><p id="cIntro">Hiring, or need more qualified conversations? I reply within a day, and WhatsApp is fastest.</p></div>
     <div class="ways">
-      <a class="way" href="{{WA}}" target="_blank" rel="noopener"><div class="ic" style="background:#25D366">{{WAICON}}</div><div><span>WhatsApp</span><b>{{PHONE}}</b></div></a>
+      <a class="way" id="waLink" href="{{WA}}" target="_blank" rel="noopener"><div class="ic" style="background:#25D366">{{WAICON}}</div><div><span>WhatsApp</span><b>{{PHONE}}</b></div></a>
       <button class="way" id="copyEmail"><div class="ic" style="background:var(--brass)"><svg viewBox="0 0 24 24" fill="none" stroke="#0e3b2e" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></div><div><span>Email, tap to copy</span><b>{{EMAIL}}</b></div></button>
       <a class="way" href="{{LI}}" target="_blank" rel="noopener"><div class="ic" style="background:#0a66c2">{{LIICON}}</div><div><span>LinkedIn</span><b>Huzaif ur Rehman</b></div></a>
     </div>
-    <div class="cfoot"><a class="btn b-brass" href="mailto:{{EMAIL}}">Send an email</a><a class="btn b-line" href="assets/Huzaif_ur_Rehman_Resume.pdf" target="_blank" rel="noopener">Download resume</a></div>
+    <p class="cscore" id="cScore"></p>
+    <div class="cfoot" id="cFoot"><a class="btn b-brass" href="mailto:{{EMAIL}}">Send an email</a><a class="btn b-line" href="assets/Huzaif_ur_Rehman_Resume.pdf" target="_blank" rel="noopener">Download resume</a></div>
     <footer><span>&copy; <span id="yr">2026</span> Huzaif ur Rehman</span><span>Lahore, Pakistan</span></footer>
   </div>
 </section>
 
 <div class="modal" id="modal" role="dialog" aria-modal="true" aria-label="Role details"><div class="mbox"><button class="x" aria-label="Close">&times;</button><div id="mbody"></div></div></div>
-<div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Photo of Huzaif ur Rehman"><button class="x" aria-label="Close photo">&times;</button><img alt="Huzaif ur Rehman" width="720" height="1191"></div>
+<div class="lead" id="lead">
+  <div class="leadtip" id="leadTip" hidden><b>You're being scored.</b><p>This is the lead scoring I build for clients, running on you. Reading a section, opening a role or telling me who you are all count as signals.</p><ul id="leadLog"></ul></div>
+  <button class="lead-b" id="leadB" aria-expanded="false" aria-controls="leadTip"><svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="16"/><circle class="fg" id="leadRing" cx="20" cy="20" r="16"/></svg><span class="lv" id="leadV">5</span><span class="lt"><small>Your lead score</small><b id="leadS">Cold</b></span></button>
+</div>
 <div class="toast" id="toast" role="status">Email copied</div>
 
 <script src="assets/data.js?v={{V}}" defer></script>

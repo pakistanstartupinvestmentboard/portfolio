@@ -54,46 +54,29 @@ window.HR = {
       tools:["Meta Ads","Content","AI tools"] }
   ],
 
-  warm: [
-    { name:"Cold", line:"They've never heard of you.", sig:["No connection","Never seen your content"], note:"A message here reads as a pitch from a stranger. Most outreach starts here." },
-    { name:"Familiar", line:"Your name has crossed their feed.", sig:["Saw your comments","Viewed your profile"], note:"Keep showing up with useful comments on their posts and on the people they follow." },
-    { name:"Engaged", line:"They're reacting to you.", sig:["Liked a post","Replied to a comment","Accepted the connection"], note:"Watch for these signals. They tell you when to step in." },
-    { name:"Warm", line:"They already know who you are.", sig:["Engages regularly","Shows a buying trigger"], note:"Send the first message now. It lands on a name they recognize." }
+  // How I work graphics (illustrative example lead: Dana Miller, Lakeview Mortgage)
+  out: {
+    to:"Dana Miller", title:"Operations Director, Lakeview Mortgage",
+    parts:[
+      { k:"Observed", src:"Careers page: third processor role posted since spring", t:"Dana, I noticed Lakeview is hiring two more loan processors, the third posting since spring." },
+      { k:"Evidence", src:"Her LinkedIn post on closings slipping past 30 days", t:"Your post on closings slipping past 30 days points the same way." },
+      { k:"Pain", src:"What the problem costs her, in her terms", t:"Every extra day on a file is a day a borrower can walk to a faster lender." },
+      { k:"Ask", src:"Small, specific, easy to say yes to", t:"Worth 15 minutes to see where your document checks stall?" }
+    ]
+  },
+  feed: [
+    { ic:"c", who:"You commented on Dana's post", t:"\u201cThe 30-day slip usually starts at document checks, not underwriting. Time each handoff for a week and it shows.\u201d" },
+    { ic:"l", who:"Engagement", t:"Dana and 2 others liked your comment" },
+    { ic:"v", who:"Profile", t:"Dana Miller viewed your profile" },
+    { ic:"m", who:"New message from Dana", t:"\u201cYour comment on document checks was spot on. Open to a quick call?\u201d", tag:"She reached out first" }
   ],
-  seq: [
-    { name:"Research-led opener", day:"Day 1", what:"A short message built on something specific they posted or did." },
-    { name:"Value follow-up", day:"Day 4", what:"A useful idea or resource tied to their situation. Nothing asked for." },
-    { name:"Pain point question", day:"Day 8", what:"One sharp question about the problem they're most likely facing." },
-    { name:"Soft close", day:"Day 13", what:"A light invite to a short call that leaves the door open." }
-  ],
-
-  mix: [
-    { name:"Demand signal", pct:40, color:"#c9a24a", job:"Names the problem", ex:"Most mortgage teams lose a full day per file to manual checks. Here's where it happens." },
-    { name:"Authority", pct:35, color:"#e3e9e4", job:"Proves the expertise", ex:"The 3 questions to ask before automating any workflow, and why most teams skip the second." },
-    { name:"Proof", pct:25, color:"#6f9c86", job:"Shows the result", ex:"What changed after a 20-person team moved approvals into the tools they already had." }
-  ],
-  funnel: [
-    { name:"Visibility", what:"They see you for the first time.", how:"Research-led posts and comments where the buyers already spend time." },
-    { name:"Recognition", what:"Your name starts to stick.", how:"Repeat appearances with a consistent point of view." },
-    { name:"Trust", what:"They believe you can solve the problem.", how:"Authority and proof posts that show how you think." },
-    { name:"Conversation", what:"They're open to talking.", how:"A warm, personal message about something they care about." },
-    { name:"Booked call", what:"A qualified call on the calendar.", how:"Replies and scheduling handled, so the call is the only step left." }
-  ],
-
-  ads: [
-    { name:"Reach", goal:"Get seen by the right people", aud:"Broad interest and lookalike audiences", cre:"Short videos that open on the problem in the first 3 seconds", kpi:"Cost per 1,000 views and 3-second view rate" },
-    { name:"Engage", goal:"Build interest", aud:"People who watched or visited the profile", cre:"Stories, FAQs and answers to common doubts", kpi:"Click-through rate and cost per landing page view" },
-    { name:"Convert", goal:"Turn interest into leads", aud:"Warm retargeting audiences only", cre:"One clear offer with an instant form or WhatsApp button", kpi:"Cost per lead and lead quality" },
-    { name:"Improve", goal:"Find what works, every week", aud:"Whatever the data says is performing", cre:"AI-generated variants of the best hooks, 3 to 5 new ones tested each week", kpi:"Cost per lead trending down" }
-  ],
-
-  signals: [
-    { label:"Job title matches the buyer", w:25 },
-    { label:"Company size is in range", w:20 },
-    { label:"Industry is on the focus list", w:15 },
-    { label:"Recent trigger: new role, hiring or funding", w:20 },
-    { label:"Has engaged with the content", w:20 }
-  ],
+  rail: ["Find the right people","Add value in public","They notice","They reach out"],
+  matrix: { rows:["Students","Parents","Professionals"], cols:["Benefit","Purpose","Pain"], win:[[0,1],[1,2],[2,0]] },
+  score: {
+    profile:[["Industry: mortgage",14],["Size: 80 people",12],["Title: Ops Director",12]],
+    a:{ name:"Company A", pain:[["Hiring 2 more processors",16],["Posted about slow closings",16],["Paper forms on their site",12]], verdict:"Reach out now" },
+    b:{ name:"Company B", pain:[["No relevant hiring",0],["No posts about delays",0],["Self-serve online portal",0]], verdict:"Nurture with content" }
+  },
 
   stack: [
     { name:"Find", tools:["Apollo","Sales Navigator","Scraping"], does:"Build lists of the right companies and people.",

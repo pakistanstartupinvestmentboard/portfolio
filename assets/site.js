@@ -8,6 +8,23 @@ const dur=r=>{const m=(r.end?idx(r.end):NOWI)-idx(r.start)+1,y=Math.floor(m/12),
 const range=r=>fmt(idx(r.start))+' to '+(r.end?fmt(idx(r.end)):'present');
 const press=(list,i,attr='aria-pressed')=>list.forEach((b,j)=>b.setAttribute(attr,j===i));
 
+/* lead score: the visitor is the lead */
+const SIG={seg:[10,'Told me who you are'],about:[8,'Read the brief'],experience:[8,'Looked at past campaigns'],role:[12,'Opened a role'],
+  m0:[6,'Read: outbound'],m1:[6,'Read: inbound'],m2:[6,'Read: Meta ads'],m3:[6,'Read: lead scoring'],toolkit:[10,'Watched the stack'],achievements:[6,'Checked off-the-clock work'],contact:[10,'Reached the call to action']};
+let LS=5;const got=new Set(),leadEl=$('#lead'),leadB=$('#leadB'),leadTip=$('#leadTip'),ring=$('#leadRing'),RC=2*Math.PI*16;ring.style.strokeDasharray=RC;
+const stage=v=>v>=80?'Qualified':v>=55?'Warm':v>=30?'Warming up':'Cold';
+function paintLead(){$('#leadV').textContent=LS;const st=stage(LS),sb=$('#leadS');if(sb.textContent!==st){sb.textContent=st;leadEl.classList.remove('pulse');void leadEl.offsetWidth;leadEl.classList.add('pulse');}
+  ring.style.strokeDashoffset=RC*(1-LS/100);leadEl.dataset.st=st;
+  $('#cScore').innerHTML=`Your lead score: <b>${LS}</b>. ${LS>=80?'Qualified. Let&rsquo;s talk.':LS>=55?'Warm enough. Let&rsquo;s talk.':'Still warming up, but you&rsquo;re welcome to skip ahead.'}`;}
+function signal(k){if(got.has(k)||!SIG[k])return;got.add(k);LS=Math.min(100,LS+SIG[k][0]);
+  const li=document.createElement('li');li.innerHTML=`<b>+${SIG[k][0]}</b> ${SIG[k][1]}`;$('#leadLog').prepend(li);paintLead();}
+leadB.onclick=()=>{const o=leadTip.hidden;leadTip.hidden=!o;leadB.setAttribute('aria-expanded',o);};
+addEventListener('scroll',()=>leadEl.classList.toggle('show',scrollY>innerHeight*.6),{passive:true});
+const sio=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)signal(e.target.id);}),{threshold:.3});
+['about','experience','achievements','contact'].forEach(id=>sio.observe(document.getElementById(id)));
+new IntersectionObserver(es=>{leadEl.classList.toggle('away',es[0].isIntersecting);if(es[0].isIntersecting){leadTip.hidden=true;leadB.setAttribute('aria-expanded',false);}},{threshold:.25}).observe($('#contact'));
+paintLead();
+
 /* nav */
 const nav=$('#nav'),burger=$('#burger');
 const solid=()=>nav.classList.toggle('solid',scrollY>40&&!nav.classList.contains('open'));
@@ -34,7 +51,7 @@ addEventListener('pointermove',e=>{if(!drag)return;const dx=e.clientX-drag.sx;mo
 addEventListener('pointerup',()=>{if(!drag)return;drag=null;setTimeout(()=>rail.classList.remove('dragging'),0);});
 $$('.job',tr).slice(D.roles.length).forEach(b=>b.setAttribute('tabindex','-1'));
 const modal=$('#modal'),mb=$('#mbody');let cur=0,lastFocus;
-function openRole(i){cur=(i+D.roles.length)%D.roles.length;const r=D.roles[cur];
+function openRole(i){signal('role');cur=(i+D.roles.length)%D.roles.length;const r=D.roles[cur];
   mb.innerHTML=`<h3>${r.org}</h3><div class="r">${r.role}</div><div class="d">${r.where}. ${range(r)}, ${dur(r)}.</div>
   <ul>${r.points.map(p=>`<li>${p}</li>`).join('')}</ul><div class="tags">${r.tools.map(t=>`<span>${t}</span>`).join('')}</div>
   <div class="pn"><button data-s="-1">Previous role</button><button data-s="1">Next role</button></div>`;
@@ -46,51 +63,52 @@ $$('.stat').forEach(s=>s.addEventListener('click',()=>openRole(D.roles.findIndex
 modal.addEventListener('click',e=>{if(e.target===modal||e.target.closest('.x'))return close();const s=e.target.closest('[data-s]');if(s)openRole(cur+ +s.dataset.s);});
 addEventListener('keydown',e=>{if(!modal.classList.contains('open'))return;if(e.key==='Escape')close();if(e.key==='ArrowRight')openRole(cur+1);if(e.key==='ArrowLeft')openRole(cur-1);});
 
-/* how I work: tabs */
-const tabs=$$('#modes button');
-const ind=$('#modes .ind');
-const moveInd=()=>{const t=tabs.find(b=>b.getAttribute('aria-selected')==='true');Object.assign(ind.style,{left:t.offsetLeft+'px',top:t.offsetTop+'px',width:t.offsetWidth+'px',height:t.offsetHeight+'px'});};
-tabs.forEach(t=>t.onclick=()=>{press(tabs,tabs.indexOf(t),'aria-selected');moveInd();$$('.pane').forEach(p=>p.classList.toggle('on',p.id==='p-'+t.dataset.p));});
-moveInd();addEventListener('resize',moveInd);document.fonts&&document.fonts.ready.then(moveInd);
+/* how I work: scroll-driven panels */
+const how=$('#how'),pin=$('#pin'),panels=$$('.mp'),stepB=$$('#steps button'),sbar=$('#sbar');
+const pinMQ=matchMedia('(min-width:981px) and (min-height:700px)');
+let active=-1;
+const G={};
+function activate(i){if(i===active)return;active=i;panels.forEach((p,j)=>p.classList.toggle('on',j===i));stepB.forEach((b,j)=>b.classList.toggle('on',j===i));
+  const p=panels[i];run(p);signal('m'+i);}
+function run(p){p.classList.remove('run');void p.offsetWidth;p.classList.add('run');const f=G[p.id];f&&f();}
+function pinScroll(){if(!how.classList.contains('pinned'))return;const r=pin.getBoundingClientRect(),span=pin.offsetHeight-innerHeight;
+  const pr=Math.min(1,Math.max(0,-r.top/span));sbar.style.transform=`scaleX(${pr})`;activate(Math.min(panels.length-1,Math.floor(pr*panels.length*0.999)));}
+function setMode(){how.classList.toggle('pinned',pinMQ.matches&&!reduceM);active=-1;
+  if(how.classList.contains('pinned'))pinScroll();else panels.forEach(p=>p.classList.add('on'));}
+addEventListener('scroll',pinScroll,{passive:true});pinMQ.addEventListener?pinMQ.addEventListener('change',setMode):pinMQ.addListener(setMode);
+stepB.forEach((b,i)=>b.onclick=()=>{const span=pin.offsetHeight-innerHeight;scrollTo({top:pin.offsetTop+span*(i+.5)/panels.length,behavior:'smooth'});});
+const pio=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting&&!how.classList.contains('pinned')){pio.unobserve(e.target);run(e.target);signal('m'+e.target.dataset.i);}}),{threshold:.35});
+panels.forEach(p=>pio.observe(p));
 
-/* outbound: temperature */
-const tcols=['#dbe5de','#a9c2b4','#e6cf94','#c9a24a'],temp=$('#temp'),tR=$('#tempR'),tBox=$('#tempBox');
-temp.innerHTML=D.warm.map((w,i)=>`<button style="background:${tcols[i]}" aria-pressed="false">${w.name}</button>`).join('');
-const tB=$$('button',temp);
-function setT(i){press(tB,i);tR.value=i;const w=D.warm[i];tBox.innerHTML=`<h4>${w.line}</h4><div class="tags">${w.sig.map(s=>`<span>${s}</span>`).join('')}</div><p style="margin-top:12px">${w.note}</p>`;}
-tB.forEach((b,i)=>b.onclick=()=>setT(i));tR.oninput=()=>setT(+tR.value);setT(0);
-/* outbound: sequence */
-const seq=$('#seq');seq.innerHTML=D.seq.map((s,i)=>`<button aria-expanded="${i===0}"><span>${s.day}</span><b>${s.name}</b><em>${s.what}</em></button>`).join('');
-const sB=$$('button',seq);sB.forEach((b,i)=>b.onclick=()=>press(sB,i,'aria-expanded'));
+/* graphic: outbound annotated message */
+(()=>{const o=D.out;$('#g-out').innerHTML=`<div class="msg"><div class="msg-h"><i class="av">DM</i><div><b>To: ${o.to}</b><span>${o.title}</span></div></div>
+  <p class="msg-b">${o.parts.map((x,i)=>`<span class="hl" data-k="${i}" style="--d:${.3+i*.55}s">${x.t}</span>`).join(' ')}</p></div>
+  <ol class="notes">${o.parts.map((x,i)=>`<li data-k="${i}" style="--d:${.45+i*.55}s"><b>${x.k}</b>${x.src}</li>`).join('')}</ol>
+  <div class="cov"><div><span>Typical message</span><i class="on"></i><i></i><i></i><i></i><em>first line only</em></div><div class="me"><span>Mine</span><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><em>every sentence</em></div></div>`;
+  const g=$('#g-out');$$('.notes li',g).forEach(li=>{const k=li.dataset.k,h=$(`.hl[data-k="${k}"]`,g);li.onmouseenter=()=>h.classList.add('hot');li.onmouseleave=()=>h.classList.remove('hot');});})();
 
-/* inbound: donut */
-const r=80,C=2*Math.PI*r;let off=0,svg=`<svg viewBox="0 0 200 200" aria-hidden="true"><circle cx="100" cy="100" r="${r}" fill="none" stroke="#0e3b2e" stroke-width="22"/>`;
-D.mix.forEach((m,i)=>{const len=C*m.pct/100;svg+=`<circle class="s" data-i="${i}" cx="100" cy="100" r="${r}" fill="none" stroke="${m.color}" stroke-width="22" stroke-dasharray="${len-3} ${C-len+3}" stroke-dashoffset="${-off}"/>`;off+=len;});
-$('#donut').innerHTML=svg+`</svg><div class="mid"><b id="mp">40%</b><span id="ml">Demand signal</span></div>`;
-const leg=$('#legend');leg.innerHTML=D.mix.map(m=>`<button aria-pressed="false"><i style="background:${m.color}"></i><div><b>${m.pct}% ${m.name}</b><span>${m.job}</span></div></button>`).join('');
-const lB=$$('button',leg),segs=$$('#donut circle.s');
-function setM(i){press(lB,i);segs.forEach((s,j)=>s.classList.toggle('on',j===i));const m=D.mix[i];$('#mp').textContent=m.pct+'%';$('#ml').textContent=m.name;$('#mixBox').innerHTML=`<h4>Example post</h4><p>${m.ex}</p>`;}
-lB.forEach((b,i)=>b.onclick=()=>setM(i));segs.forEach((s,i)=>s.onclick=()=>setM(i));setM(0);
-/* inbound: funnel */
-const fcols=['#dbe5de','#a9c2b4','#6f9c86','#e6cf94','#c9a24a'],fun=$('#funnel');
-fun.innerHTML=D.funnel.map((f,i)=>`<button aria-pressed="false" style="width:${100-i*13}%;background:${fcols[i]};color:#0e3b2e">${f.name}</button>`).join('');
-const fB=$$('button',fun);function setF(i){press(fB,i);const f=D.funnel[i];$('#funBox').innerHTML=`<h4>${f.name}: ${f.what}</h4><p>${f.how}</p>`;}
-fB.forEach((b,i)=>b.onclick=()=>setF(i));setF(0);
+/* graphic: inbound feed */
+(()=>{const IC={c:'<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/>',l:'<path d="M7 11v9H4v-9h3zm0 0 4-7c1.5 0 2.5 1 2.2 2.6L12.6 10H19a2 2 0 0 1 2 2.3l-1.2 6A2 2 0 0 1 17.8 20H7"/>',v:'<circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/>',m:'<path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7z"/>'};
+  $('#g-in').innerHTML=`<div class="rail4">${D.rail.map((r,i)=>`<div style="--d:${[0,.3,1.1,2.7][i]}s"><i></i><span>${r}</span></div>`).join('')}</div>
+  <div class="feed">${D.feed.map((f,i)=>`<div class="fi${f.tag?' dm':''}" style="--d:${.3+i*.8}s"><span class="ic"><svg viewBox="0 0 24 24">${IC[f.ic]}</svg></span><div><small>${f.who}</small><p>${f.t}</p>${f.tag?`<em>${f.tag}</em>`:''}</div></div>`).join('')}</div>`;})();
 
-/* ads */
-const ads=$('#ads');ads.innerHTML=D.ads.map((a,i)=>`<button aria-pressed="false"><small>Stage ${i+1}</small><b>${a.name}</b></button>`).join('');
-const aB=$$('button',ads);
-function setA(i){press(aB,i);const a=D.ads[i];$('#adgrid').innerHTML=[['Goal',a.goal],['Audience',a.aud],['Creative',a.cre],['Number to watch',a.kpi]].map(([k,v])=>`<div><small>${k}</small><p>${v}</p></div>`).join('');}
-aB.forEach((b,i)=>b.onclick=()=>setA(i));setA(0);
+/* graphic: ads test matrix */
+(()=>{const m=D.matrix,g=$('#g-ads'),isW=(r,c)=>m.win.some(w=>w[0]===r&&w[1]===c);
+  g.innerHTML=`<div class="mx"><span></span>${m.cols.map(c=>`<span class="h">${c}</span>`).join('')}
+  ${m.rows.map((r,ri)=>`<span class="rl">${r}</span>${m.cols.map((c,ci)=>`<div class="cell${isW(ri,ci)?' w':''}" style="--d:${(ri*3+ci)*.07}s"><b>3 variants</b></div>`).join('')}`).join('')}</div>
+  <div class="budget"><div class="bh"><span>Budget</span><b id="bstate">Split evenly while testing</b></div><div class="bbar">${m.rows.flatMap((r,ri)=>m.cols.map((c,ci)=>`<i class="${isW(ri,ci)?'w':''}"></i>`)).join('')}</div></div>
+  <p class="cap">Example test: 3 angles &times; 3 audiences, 3 AI variants each. 27 ads, one week.</p>`;
+  let t=[];G['m-ads']=()=>{t.forEach(clearTimeout);g.classList.remove('done');$$('.cell b',g).forEach(b=>b.textContent='3 variants');$('#bstate').textContent='Split evenly while testing';
+    t=[setTimeout(()=>{g.classList.add('done');$$('.cell',g).forEach(c=>$('b',c).textContent=c.classList.contains('w')?'Winner':'Cut');$('#bstate').textContent='Follows the winners';},reduceM?0:2200)];};})();
 
-/* scoring */
-const sig=$('#sig');sig.innerHTML=D.signals.map((s,i)=>`<label><span>${s.label}<em>+${s.w}</em></span><input type="checkbox" data-w="${s.w}" ${i<2?'checked':''}></label>`).join('');
-const gfg=$('#gfg'),GL=gfg.getTotalLength();gfg.style.strokeDasharray=GL;
-function score(){const v=$$('input',sig).reduce((t,c)=>t+(c.checked?+c.dataset.w:0),0);
-  $('#score').textContent=v;gfg.style.strokeDashoffset=GL*(1-v/100);
-  const [t,d]=v>=70?['Start the sequence now','Strong fit with a reason to talk. The four-touch outreach starts automatically.']:v>=40?['Warm up first','Good fit, not ready yet. Engage with their posts for a week or two before any message.']:['Nurture with content','Not a fit right now. Add to the content audience and check again next month.'];
-  $('#route').innerHTML=`<b>${t}</b><p>${d}</p>`;}
-sig.addEventListener('change',score);score();
+/* graphic: lead scoring, same profile different pain */
+(()=>{const S=D.score,sum=a=>a.reduce((t,x)=>t+x[1],0),base=sum(S.profile);
+  const card=(c,cls)=>{const tot=base+sum(c.pain);return `<div class="scard ${cls}"><h4>${c.name}</h4><div class="grp"><small>Profile fit</small><ul>${S.profile.map(([l,w])=>`<li><span>${l}</span><b>+${w}</b></li>`).join('')}</ul></div>
+    <div class="grp"><small>Pain signals</small><ul>${c.pain.map(([l,w])=>`<li class="${w?'':'off'}"><span>${l}</span><b>+${w}</b></li>`).join('')}</ul></div>
+    <div class="total"><span>Score</span><b data-t="${tot}">0</b></div><div class="sbar2"><i style="--w:${tot}%"></i></div><div class="verdict">${c.verdict}</div></div>`;};
+  const g=$('#g-score');g.innerHTML=`<p class="cap top">Same profile. Different pain.</p><div class="sc">${card(S.a,'hot')}${card(S.b,'')}</div>`;
+  G['m-score']=()=>$$('.total b',g).forEach(b=>{const n=+b.dataset.t;if(reduceM){b.textContent=n;return;}const t0=performance.now();(function f(t){const q=Math.min(1,(t-t0)/1200);b.textContent=Math.round(n*(1-Math.pow(1-q,3)));if(q<1)requestAnimationFrame(f);})(t0);});})();
+setMode();
 
 /* toolkit */
 const ICO={Find:'<circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/>',Enrich:'<path d="M12 3 3 8l9 5 9-5-9-5z"/><path d="m3 13 9 5 9-5"/>',Organize:'<ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v12c0 1.7 3.6 3 8 3s8-1.3 8-3V6M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/>',Automate:'<path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z"/>',Reach:'<path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7z"/>','Get found':'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>'};
@@ -112,6 +130,7 @@ function reset(){clearInterval(timer);at=-1;nB.forEach(b=>{b.setAttribute('aria-
 function play(){clearInterval(timer);let i=at>=D.stack.length-1?-1:at;timer=setInterval(()=>{i++;setS(i,true);if(i>=D.stack.length-1)clearInterval(timer);},1300);if(i===-1){i=0;setS(0,true);}}
 nB.forEach((b,i)=>b.onclick=()=>{clearInterval(timer);setS(i,true);});
 reset();addEventListener('resize',()=>at<0?reset():setS(at,false));
+const tio=new IntersectionObserver(es=>{if(es[0].isIntersecting){tio.disconnect();signal('toolkit');if(at<0)play();}},{threshold:.45});tio.observe($('.stack'));
 
 /* scroll progress */
 const prog=$('#prog');const onP=()=>{const h=document.documentElement.scrollHeight-innerHeight;prog.style.transform=`scaleX(${h>0?scrollY/h:0})`;};addEventListener('scroll',onP,{passive:true});onP();
@@ -133,12 +152,23 @@ const cio=new IntersectionObserver(es=>es.forEach(e=>{if(!e.isIntersecting)retur
   (function f(t){const p=Math.min(1,(t-t0)/1100),v=Math.round(n*(1-Math.pow(1-p,3)));el.textContent=pre+v+suf;if(p<1)requestAnimationFrame(f);})(t0);}),{threshold:.6});
 $$('[data-n]').forEach(el=>cio.observe(el));
 
-/* photo lightbox */
-const lb=$('#lb'),lbi=$('img',lb);
-$('#phBtn').onclick=()=>{lbi.src='assets/portrait.webp';lb.classList.add('open');document.body.style.overflow='hidden';$('.x',lb).focus();};
-const lbClose=()=>{lb.classList.remove('open');document.body.style.overflow='';$('#phBtn').focus();};
-lb.onclick=e=>{if(e.target!==lbi)lbClose();};
-addEventListener('keydown',e=>{if(e.key==='Escape'&&lb.classList.contains('open'))lbClose();});
+/* segments: hiring vs growth */
+const RES='assets/Huzaif_ur_Rehman_Resume.pdf',WA=n=>'https://wa.me/923248451679?text='+encodeURIComponent(n);
+const SEG={
+  hire:{note:'Got it. The page is now set up for hiring managers.',hero:`<a class="btn b-green" href="${RES}" target="_blank" rel="noopener">Download resume</a><a class="btn b-line" href="#contact">Contact me</a>`,
+    intro:'Hiring for marketing, growth or go-to-market? I reply within a day, and WhatsApp is fastest.',
+    foot:`<a class="btn b-brass" href="${RES}" target="_blank" rel="noopener">Download resume</a><a class="btn b-line" href="mailto:${D.email}?subject=${encodeURIComponent('A role for you')}">Send an email</a>`,
+    wa:'Hi Huzaif, I came across your portfolio and would like to talk about a role.'},
+  growth:{note:'Got it. The page is now set up for founders and teams.',hero:`<a class="btn b-green" href="#contact">Start a conversation</a><a class="btn b-line" href="#how">See how I work</a>`,
+    intro:'Tell me what you sell and who buys it. I&rsquo;ll reply within a day with where I&rsquo;d start. WhatsApp is fastest.',
+    foot:`<a class="btn b-brass" href="mailto:${D.email}?subject=${encodeURIComponent('Growth for my business')}">Email me your brief</a><a class="btn b-line" href="${RES}" target="_blank" rel="noopener">Download resume</a>`,
+    wa:'Hi Huzaif, I saw your portfolio and want to talk about growth for my business.'}};
+const segB=$$('.seg button');
+function setSeg(k,user){const c=SEG[k];if(!c)return;press(segB,segB.findIndex(b=>b.dataset.seg===k));
+  $('#heroAct').innerHTML=c.hero;$('#cIntro').innerHTML=c.intro;$('#cFoot').innerHTML=c.foot;$('#waLink').href=WA(c.wa);
+  if(user){$('#segNote').textContent=c.note;signal('seg');}try{localStorage.setItem('hr-seg',k);}catch(_){}}
+segB.forEach(b=>b.onclick=()=>setSeg(b.dataset.seg,true));
+try{const k=localStorage.getItem('hr-seg');if(k)setSeg(k,false);}catch(_){}
 
 /* contact */
 const toast=$('#toast');
