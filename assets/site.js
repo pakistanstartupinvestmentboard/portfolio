@@ -72,9 +72,9 @@ const pinTop=()=>pin.getBoundingClientRect().top+scrollY;
 const stepY=i=>pinTop()+span()*i/(NP-1);
 function activate(i){sbar.style.transform=`scaleX(${(i+1)/NP})`;if(i===active)return;active=i;panels.forEach((p,j)=>p.classList.toggle('on',j===i));stepB.forEach((b,j)=>b.classList.toggle('on',j===i));run(panels[i]);signal('m'+i);}
 function run(p){p.classList.remove('run');void p.offsetWidth;p.classList.add('run');const f=G[p.id];f&&f();}
-function pinScroll(){leadEl.classList.toggle('busy',pinned()&&innerWidth<=640&&inPin());if(!pinned())return;const pr=Math.min(1,Math.max(0,(scrollY-pinTop())/span()));activate(Math.round(pr*(NP-1)));}
+function pinScroll(){leadEl.classList.toggle('busy',pinned()&&innerWidth<=980&&inPin());if(!pinned())return;const pr=Math.min(1,Math.max(0,(scrollY-pinTop())/span()));activate(Math.round(pr*(NP-1)));}
 /* fit: tighten text until the tallest panel fits the screen; if it never fits, stack instead */
-function fits(){const cs=getComputedStyle(pinIn),avail=pinIn.clientHeight-parseFloat(cs.paddingTop)-parseFloat(cs.paddingBottom)-$('#steps').offsetHeight-14;return panelsEl.offsetHeight<=avail;}
+function fits(){const cs=getComputedStyle(pinIn),avail=pinIn.clientHeight-parseFloat(cs.paddingTop)-parseFloat(cs.paddingBottom)-$('#steps').offsetHeight-14;return panelsEl.offsetHeight+56<=avail;}
 function setMode(){const T=['tight1','tight2','tight3'];how.classList.remove(...T);how.classList.add('pinned');panels.forEach(p=>p.classList.add('on'));
   for(const t of T){if(fits())break;how.classList.add(t);}
   if(!fits()){how.classList.remove('pinned',...T);}
@@ -90,11 +90,15 @@ function go(dir){const t=active+dir;if(t<0||t>=NP)return false;lock=true;scrollT
 addEventListener('wheel',e=>{if(!pinned()||!inPin()||Math.abs(e.deltaY)<4)return;const dir=e.deltaY>0?1:-1,t=active+dir;
   if(t<0||t>=NP)return;
   e.preventDefault();clearTimeout(quiet);quiet=setTimeout(()=>{lock=false;},220);if(!lock)go(dir);},{passive:false});
-let ty0=null,stepped=false;
-addEventListener('touchstart',e=>{ty0=e.touches[0].clientY;stepped=false;},{passive:true});
-addEventListener('touchmove',e=>{if(ty0===null||!pinned()||!inPin())return;const dy=ty0-e.touches[0].clientY,dir=dy>0?1:-1,t=active+dir;
+let ty0=null,stepped=false,startedIn=false,touching=false;
+addEventListener('touchstart',e=>{ty0=e.touches[0].clientY;stepped=false;touching=true;startedIn=pinned()&&inPin();},{passive:true});
+addEventListener('touchmove',e=>{if(ty0===null||!pinned()||!inPin()||!startedIn)return;if(stepped){e.preventDefault();return;}const dy=ty0-e.touches[0].clientY,dir=dy>0?1:-1,t=active+dir;
   if(t<0||t>=NP)return;e.preventDefault();if(!stepped&&Math.abs(dy)>36){stepped=true;go(dir);}},{passive:false});
-addEventListener('touchend',()=>{ty0=null;if(pinned()&&inPin()&&!lock){const y=stepY(Math.max(0,active));if(Math.abs(scrollY-y)>2&&scrollY<pinTop()+span())scrollTo({top:y,behavior:'instant'});}},{passive:true});
+addEventListener('touchend',()=>{ty0=null;touching=false;settle();},{passive:true});
+/* whenever scrolling comes to rest inside the section, land exactly on the nearest panel */
+let rest;function settle(){clearTimeout(rest);rest=setTimeout(()=>{if(touching||!pinned()||!inPin())return;const t=pinTop(),sp=span();if(scrollY<=t+2||scrollY>=t+sp-2)return;
+  const i=Math.round((scrollY-t)/sp*(NP-1)),y=stepY(i);if(Math.abs(scrollY-y)>2){scrollTo({top:y,behavior:'instant'});activate(i);}},140);}
+addEventListener('scroll',settle,{passive:true});
 addEventListener('keydown',e=>{if(!pinned()||!inPin()||e.target.closest('input,textarea'))return;const k={ArrowDown:1,PageDown:1,' ':1,ArrowUp:-1,PageUp:-1}[e.key];if(k&&go(k))e.preventDefault();});
 /* stacked fallback: play each graphic as it scrolls into view */
 const pio=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting&&!pinned()){pio.unobserve(e.target);run(e.target);signal('m'+e.target.dataset.i);}}),{threshold:.35});

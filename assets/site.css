@@ -239,10 +239,11 @@ footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;margin
 .sbar i{position:absolute;inset:0;background:var(--brass);transform-origin:0 50%;transform:scaleX(0)}
 .how:not(.pinned) .steps{display:none}
 .panels{display:grid}
-.mp{display:grid;grid-template-columns:5fr 7fr;gap:56px;align-items:center}
+.mp{display:grid;grid-template-columns:5fr 7fr;gap:56px;align-items:center;align-content:center}
 .how:not(.pinned) .mp+.mp{margin-top:80px;padding-top:80px;border-top:1px solid var(--green3)}
 .how.pinned .pin{height:400vh;height:400svh}
-.how.pinned .pin-in{position:sticky;top:0;height:100vh;height:100svh;display:flex;align-items:center;padding:84px 0 18px;overflow:hidden}
+.how.pinned .pin-in{position:sticky;top:0;height:100vh;height:100svh;display:flex;flex-direction:column;padding:84px 0 18px;overflow:hidden}
+.how.pinned .pin-in .wrap{margin-block:auto}
 .how.pinned .pin-in .wrap{width:100%}
 .how.pinned .mp{grid-area:1/1;opacity:0;visibility:hidden;transform:translateY(28px);transition:opacity .45s var(--ease),transform .45s var(--ease),visibility 0s .45s}
 .how.pinned .mp.on{opacity:1;visibility:visible;transform:none;transition:opacity .45s var(--ease),transform .45s var(--ease)}
@@ -515,3 +516,9 @@ footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;margin
   .how.tight3 .mp{gap:10px}
 }
 @media (max-width:640px){.msg-h div span{display:none}.msg-h .mode{font-size:11px;padding:3px 9px}}
+@media (max-width:640px){
+  .how.tight3 .pin-in{padding:70px 0 6px}
+  .how.tight3 .steps{margin-bottom:8px;padding-bottom:8px}
+  .how.tight3 .mfig{padding:10px}
+  .how.tight3 .ads6 .ad{min-height:70px;padding:7px}
+}
