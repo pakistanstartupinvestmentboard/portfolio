@@ -9,7 +9,7 @@ window.HR = {
     { id:"coral", org:"Coral Reef", role:"Operations Consultant", where:"Lahore", start:"2026-01", end:null,
       line:"Lead sourcing, proposals and process work for a research consultancy.",
       points:[
-        "Rebuilt the Upwork profile and proposal documentation. The proposal win rate went from about 8% to 19% over two months.",
+        "Rebuilt the Upwork profile and proposal documentation. The proposal win rate went from about 8% to 16% over two months.",
         "Source and qualify leads for international research projects, and draft bid proposals and RFP responses.",
         "Audited documentation workflows across 4 departments, found record-retention gaps and restructured two core processes.",
         "Manage the firm's social profiles."
@@ -21,7 +21,7 @@ window.HR = {
       points:[
         "Run Yota James's LinkedIn end to end: I write and design her posts, comment in her niche and message prospects on her behalf.",
         "Outbound: source ICPs with Sales Navigator across wealth management, mortgage, real estate and accounting firms, warm them up, then reach out. This books 10+ qualified meetings a month.",
-        "Inbound: three posts a week built on the content mix in How I work, so prospects recognize her name before the first message.",
+        "Inbound: three posts a week plus daily comments in her niche, so prospects recognize her name before the first message.",
         "Set up automated email outreach for prospects who aren't active on LinkedIn, and manage the assistant who handles daily sourcing and DMs."
       ],
       tools:["Sales Navigator","LinkedIn","Cold email","Content"] },
@@ -48,7 +48,7 @@ window.HR = {
       line:"Content, social profiles and Meta ads for an education consultancy.",
       points:[
         "Created content and managed the consultancy's social profiles.",
-        "Planned and ran Meta ad campaigns using the ads funnel in How I work.",
+        "Planned and ran Meta ad campaigns, from first view to lead.",
         "Used AI tools to produce and test ad creatives, and to refine the funnel from first view to lead."
       ],
       tools:["Meta Ads","Content","AI tools"] }
@@ -88,8 +88,6 @@ window.HR = {
     { name:"Automate", tools:["n8n"], does:"Move data between tools and trigger follow-ups without manual work.",
       add:[["Sequence","Started automatically"],["CRM","Updated on every reply"]] },
     { name:"Reach", tools:["LinkedIn","Cold email","Meta Ads"], does:"Start conversations where buyers already are.",
-      add:[["Day 1","Comment on her post"],["Day 4","Connection and DM"],["Day 8","Email follow-up"]] },
-    { name:"Get found", tools:["SEO","GEO"], does:"Show up when buyers search Google or ask an AI assistant.",
-      add:[["Search","Finds the article on mortgage automation"],["Result","Replies and books a call"]] }
+      add:[["Day 1","Comment on her post"],["Day 4","Connection and DM"],["Day 8","Email follow-up"],["Result","Replies and books a call"]] }
   ]
 };

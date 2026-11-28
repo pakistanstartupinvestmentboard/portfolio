@@ -63,27 +63,47 @@ $$('.stat').forEach(s=>s.addEventListener('click',()=>openRole(D.roles.findIndex
 modal.addEventListener('click',e=>{if(e.target===modal||e.target.closest('.x'))return close();const s=e.target.closest('[data-s]');if(s)openRole(cur+ +s.dataset.s);});
 addEventListener('keydown',e=>{if(!modal.classList.contains('open'))return;if(e.key==='Escape')close();if(e.key==='ArrowRight')openRole(cur+1);if(e.key==='ArrowLeft')openRole(cur-1);});
 
-/* how I work: scroll-driven panels */
-const how=$('#how'),pin=$('#pin'),panels=$$('.mp'),stepB=$$('#steps button'),sbar=$('#sbar');
-const pinMQ=matchMedia('(min-width:981px) and (min-height:700px)');
-let active=-1;
-const G={};
-function activate(i){if(i===active)return;active=i;panels.forEach((p,j)=>p.classList.toggle('on',j===i));stepB.forEach((b,j)=>b.classList.toggle('on',j===i));
-  const p=panels[i];run(p);signal('m'+i);}
+/* how I work: pinned panels, one scroll gesture = one panel */
+const how=$('#how'),pin=$('#pin'),pinIn=$('.pin-in'),panelsEl=$('.panels'),panels=$$('.mp'),stepB=$$('#steps button'),sbar=$('#sbar'),NP=panels.length;
+let active=-1;const G={};
+const pinned=()=>how.classList.contains('pinned');
+const span=()=>pin.offsetHeight-innerHeight;
+const pinTop=()=>pin.getBoundingClientRect().top+scrollY;
+const stepY=i=>pinTop()+span()*i/(NP-1);
+function activate(i){sbar.style.transform=`scaleX(${(i+1)/NP})`;if(i===active)return;active=i;panels.forEach((p,j)=>p.classList.toggle('on',j===i));stepB.forEach((b,j)=>b.classList.toggle('on',j===i));run(panels[i]);signal('m'+i);}
 function run(p){p.classList.remove('run');void p.offsetWidth;p.classList.add('run');const f=G[p.id];f&&f();}
-function pinScroll(){if(!how.classList.contains('pinned'))return;const r=pin.getBoundingClientRect(),span=pin.offsetHeight-innerHeight;
-  const pr=Math.min(1,Math.max(0,-r.top/span));sbar.style.transform=`scaleX(${pr})`;activate(Math.min(panels.length-1,Math.floor(pr*panels.length*0.999)));}
-function setMode(){how.classList.toggle('pinned',pinMQ.matches&&!reduceM);active=-1;
-  if(how.classList.contains('pinned'))pinScroll();else panels.forEach(p=>p.classList.add('on'));}
-addEventListener('scroll',pinScroll,{passive:true});pinMQ.addEventListener?pinMQ.addEventListener('change',setMode):pinMQ.addListener(setMode);
-stepB.forEach((b,i)=>b.onclick=()=>{const span=pin.offsetHeight-innerHeight;scrollTo({top:pin.offsetTop+span*(i+.5)/panels.length,behavior:'smooth'});});
-const pio=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting&&!how.classList.contains('pinned')){pio.unobserve(e.target);run(e.target);signal('m'+e.target.dataset.i);}}),{threshold:.35});
+function pinScroll(){leadEl.classList.toggle('busy',pinned()&&innerWidth<=640&&inPin());if(!pinned())return;const pr=Math.min(1,Math.max(0,(scrollY-pinTop())/span()));activate(Math.round(pr*(NP-1)));}
+/* fit: tighten text until the tallest panel fits the screen; if it never fits, stack instead */
+function fits(){const cs=getComputedStyle(pinIn),avail=pinIn.clientHeight-parseFloat(cs.paddingTop)-parseFloat(cs.paddingBottom)-$('#steps').offsetHeight-30;return panelsEl.offsetHeight<=avail;}
+function setMode(){const T=['tight1','tight2','tight3'];how.classList.remove(...T);how.classList.add('pinned');panels.forEach(p=>p.classList.add('on'));
+  for(const t of T){if(fits())break;how.classList.add(t);}
+  if(!fits()){how.classList.remove('pinned',...T);}
+  else panels.forEach(p=>p.classList.remove('on'));
+  active=-1;if(pinned())pinScroll();}
+addEventListener('scroll',pinScroll,{passive:true});
+let rz;addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(setMode,150);});
+stepB.forEach((b,i)=>b.onclick=()=>scrollTo({top:stepY(i),behavior:'smooth'}));
+/* inside the pin, a wheel or swipe moves exactly one panel; past either end, normal scrolling resumes */
+const inPin=()=>{const t=pinTop();return scrollY>=t-6&&scrollY<=t+span()+6;};
+let lock=false,quiet;
+function go(dir){const t=active+dir;if(t<0||t>=NP)return false;lock=true;scrollTo({top:stepY(t),behavior:'instant'});activate(t);setTimeout(()=>{lock=false;},650);return true;}
+addEventListener('wheel',e=>{if(!pinned()||!inPin()||Math.abs(e.deltaY)<4)return;const dir=e.deltaY>0?1:-1,t=active+dir;
+  if(t<0||t>=NP)return;
+  e.preventDefault();clearTimeout(quiet);quiet=setTimeout(()=>{lock=false;},220);if(!lock)go(dir);},{passive:false});
+let ty0=null,stepped=false;
+addEventListener('touchstart',e=>{ty0=e.touches[0].clientY;stepped=false;},{passive:true});
+addEventListener('touchmove',e=>{if(ty0===null||!pinned()||!inPin())return;const dy=ty0-e.touches[0].clientY,dir=dy>0?1:-1,t=active+dir;
+  if(t<0||t>=NP)return;e.preventDefault();if(!stepped&&Math.abs(dy)>36){stepped=true;go(dir);}},{passive:false});
+addEventListener('touchend',()=>{ty0=null;if(pinned()&&inPin()&&!lock){const y=stepY(Math.max(0,active));if(Math.abs(scrollY-y)>2&&scrollY<pinTop()+span())scrollTo({top:y,behavior:'instant'});}},{passive:true});
+addEventListener('keydown',e=>{if(!pinned()||!inPin()||e.target.closest('input,textarea'))return;const k={ArrowDown:1,PageDown:1,' ':1,ArrowUp:-1,PageUp:-1}[e.key];if(k&&go(k))e.preventDefault();});
+/* stacked fallback: play each graphic as it scrolls into view */
+const pio=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting&&!pinned()){pio.unobserve(e.target);run(e.target);signal('m'+e.target.dataset.i);}}),{threshold:.35});
 panels.forEach(p=>pio.observe(p));
 
 /* graphic: outbound annotated message */
 (()=>{const o=D.out;$('#g-out').innerHTML=`<div class="msg"><div class="msg-h"><i class="av">DM</i><div><b>To: ${o.to}</b><span>${o.title}</span></div></div>
   <p class="msg-b">${o.parts.map((x,i)=>`<span class="hl" data-k="${i}" style="--d:${.3+i*.55}s">${x.t}</span>`).join(' ')}</p></div>
-  <ol class="notes">${o.parts.map((x,i)=>`<li data-k="${i}" style="--d:${.45+i*.55}s"><b>${x.k}</b>${x.src}</li>`).join('')}</ol>
+  <ol class="notes">${o.parts.map((x,i)=>`<li data-k="${i}" style="--d:${.45+i*.55}s"><b>${x.k}</b><span>${x.src}</span></li>`).join('')}</ol>
   <div class="cov"><div><span>Typical message</span><i class="on"></i><i></i><i></i><i></i><em>first line only</em></div><div class="me"><span>Mine</span><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><em>every sentence</em></div></div>`;
   const g=$('#g-out');$$('.notes li',g).forEach(li=>{const k=li.dataset.k,h=$(`.hl[data-k="${k}"]`,g);li.onmouseenter=()=>h.classList.add('hot');li.onmouseleave=()=>h.classList.remove('hot');});})();
 
@@ -103,7 +123,7 @@ panels.forEach(p=>pio.observe(p));
 
 /* graphic: lead scoring, same profile different pain */
 (()=>{const S=D.score,sum=a=>a.reduce((t,x)=>t+x[1],0),base=sum(S.profile);
-  const card=(c,cls)=>{const tot=base+sum(c.pain);return `<div class="scard ${cls}"><h4>${c.name}</h4><div class="grp"><small>Profile fit</small><ul>${S.profile.map(([l,w])=>`<li><span>${l}</span><b>+${w}</b></li>`).join('')}</ul></div>
+  const card=(c,cls)=>{const tot=base+sum(c.pain);return `<div class="scard ${cls}"><h4>${c.name}</h4><div class="pf"><span>Profile fit</span><b>+${base}</b></div><div class="grp prof"><small>Profile fit</small><ul>${S.profile.map(([l,w])=>`<li><span>${l}</span><b>+${w}</b></li>`).join('')}</ul></div>
     <div class="grp"><small>Pain signals</small><ul>${c.pain.map(([l,w])=>`<li class="${w?'':'off'}"><span>${l}</span><b>+${w}</b></li>`).join('')}</ul></div>
     <div class="total"><span>Score</span><b data-t="${tot}">0</b></div><div class="sbar2"><i style="--w:${tot}%"></i></div><div class="verdict">${c.verdict}</div></div>`;};
   const g=$('#g-score');g.innerHTML=`<p class="cap top">Same profile. Different pain.</p><div class="sc">${card(S.a,'hot')}${card(S.b,'')}</div>`;

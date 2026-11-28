@@ -10,7 +10,7 @@
 
 ## Experience
 
-- Operations Consultant, Coral Reef, Lahore (Jan 2026 to present): lifted the Upwork win rate from about 8% to 19% in two months; lead sourcing and bid proposals for international research projects; audited documentation across 4 departments.
+- Operations Consultant, Coral Reef, Lahore (Jan 2026 to present): lifted the Upwork win rate from about 8% to 16% in two months; lead sourcing and bid proposals for international research projects; audited documentation across 4 departments.
 - LinkedIn Growth & Outreach, Elevation AI Solutions (Jul 2026 to present): runs inbound and outbound LinkedIn for Yota James, an AI consultant in Lakeland, US; ICP sourcing with Sales Navigator; email automation; 10+ qualified meetings a month.
 - Go-To-Market Associate, Asaan AI, Milwaukee WI, remote (Jan 2026 to Mar 2026): buyer profiles and messaging for legal, healthcare, edtech and fintech; automation in n8n and GoHighLevel; SEO and GEO.
 - Business Development Associate, Powerhouse, United States, remote (Jun 2024 to Dec 2025): lead sourcing and enrichment with Apollo and Salesforce; ICP and qualification workflows that improved lead quality and conversion efficiency by about 30%.
@@ -29,10 +29,10 @@
 
 ## How I work
 
-- Outbound: warm prospects up through engagement before any message, then a four-touch sequence (opener, value follow-up, pain point question, soft close).
-- Inbound: a weekly content mix of 40% demand signal, 35% authority and 25% proof, mapped to a visibility-to-booked-call funnel.
-- Meta ads: a four-stage funnel (reach, engage, convert, improve), with AI-generated creative variants tested weekly.
-- Lead scoring: title, company size, industry, recent triggers and engagement decide whether a lead is nurtured, warmed up or sequenced, with routing automated in n8n.
+- Outbound: personalization is the whole message, not the first line. Each message is built on one problem spotted on the prospect's website or socials, the pain it causes, and one small ask.
+- Inbound: not posting and waiting. Source the ideal customers, engage with their content naturally so they see the expertise, and let them reach out first.
+- Meta ads: AI generates variants for each angle (benefit, purpose, pain) across each audience; performance decides where budget goes.
+- Lead scoring: score visible pain (hiring, posts, website, workflows), not just industry, size and title.
 
 ## Tools
 
